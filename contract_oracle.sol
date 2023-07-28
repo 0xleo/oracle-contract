@@ -1,27 +1,23 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.5;
 
-contract Oracle {
-    address public owner;
-    uint public data;
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
-    event DataUpdated(uint newData);
+contract PriceConsumerV3 {
 
-    constructor() {
-        owner = msg.sender;
+    AggregatorV3Interface internal priceFeed;
+
+    constructor() public {
+        priceFeed = AggregatorV3Interface(0x13e3Ee699D1909E989722E753853AE30b17e08c5); // Contract pair example ETH/USD price
     }
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can call this function.");
-        _;
-    }
-
-    function updateData(uint newData) external onlyOwner {
-        data = newData;
-        emit DataUpdated(newData);
-    }
-
-    function getData() external view returns (uint) {
-        return data;
+    function getThePrice() public view returns (int) {
+        (
+            uint80 roundID, 
+            int price,
+            uint startedAt,
+            uint timeStamp,
+            uint80 answeredInRound
+        ) = priceFeed.latestRoundData();
+        return price;
     }
 }
